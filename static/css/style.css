@@ -1,3 +1,10 @@
 body {
     font-family: 'Segoe UI', sans-serif;
+    background-color: #0b0f19;   /* dark background */
+    color: #ffffff;              /* default text white */
+}
+
+/* Fix jumbotron text */
+.jumbotron {
+    color: #000 !important;
 }
