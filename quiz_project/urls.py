@@ -21,4 +21,5 @@ from core import views   # 👈 important
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),   # 👈 this calls home()
+    path('register/', views.register, name='register'),
 ]
