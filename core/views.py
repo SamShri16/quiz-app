@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth import authenticate, login , logout
+from django.contrib.auth.decorators import login_required
 
 
 def home(request):
@@ -36,6 +38,29 @@ def register(request):
         )
 
         messages.success(request, "Account created successfully. Please login.")
-        return redirect('register')   # ✅ TEMP FIX (no login yet)
+        return redirect('register')   
 
     return render(request, 'core/register.html')
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.succcess(request, f'Welcome {username}!')
+            return redirect('home')
+        else:
+            messages.error(request, "Invalid username or password.")
+            return redirect('login')
+
+    return render(request, 'core/login.html')
+
+@login_required
+def logout_view(request):
+    logout(request)
+    messages.success(request, "You have been logged out.")
+    return redirect('home')
