@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate, login , logout
 from django.contrib.auth.decorators import login_required
+from .models import Quiz
 
 
 def home(request):
@@ -64,3 +65,7 @@ def logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out.")
     return redirect('home')
+
+def category_quizzes(request, category_id):
+    quizzes = Quiz.objects.filter(category_id=category_id)
+    return render(request, 'core/quizzes_by_category.html', {'quizzes': quizzes})
