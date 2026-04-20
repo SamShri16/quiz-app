@@ -16,21 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from core import views
+from django.contrib.auth import views as auth_views
+from core import views as core_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Home
-    path('', views.home, name='home'),
+    # core app
+    path('', include('core.urls')),
 
-    # Category → Quizzes
-    path('category/<int:category_id>/', views.category_quizzes, name='category_quizzes'),
-
-    # Day 5 Quiz Flow
-    path('quiz/<int:quiz_id>/start/', views.start_quiz, name='start_quiz'),
-    path('quiz/attempt/', views.attempt_quiz, name='attempt_quiz'),
-    path('quiz/result/', views.quiz_result, name='quiz_result'),
-
-    path('accounts/', include('django.contrib.auth.urls')),
+    # auth
+    path('login/', auth_views.LoginView.as_view(template_name='core/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('register/', core_views.register, name='register'),
 ]
