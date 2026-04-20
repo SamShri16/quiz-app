@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<div class="card shadow-sm p-4">
+    <h4>Question {{ question_number }} of {{ total_questions }}</h4>
+    <p class="lead">{{ question.text }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {% for option in options %}
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="option" value="{{ option.id }}">
+                <label class="form-check-label">
+                    {{ option.text }}
+                </label>
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+    </form>
+
+    <p class="mt-3"><strong>Time Left:</strong> <span id="timer">30</span> sec</p>
+</div>
+
+<script>
+let timeLeft = 30;
+const timer = document.getElementById('timer');
+
+const countdown = setInterval(() => {
+    timeLeft--;
+    timer.innerText = timeLeft;
+
+    if (timeLeft <= 0) {
+        clearInterval(countdown);
+        document.querySelector('form').submit();
+    }
+}, 1000);
+</script>
+
+{% endblock %}
