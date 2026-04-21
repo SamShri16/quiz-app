@@ -41,7 +41,7 @@ class Attempt(models.Model):
     total = models.IntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)   # quiz started
-    completed_at = models.DateTimeField(auto_now_add=True) # quiz submitted
+    completed_at = models.DateTimeField(null=True, blank=True) # quiz submitted
 
     def __str__(self):
         return f"{self.user} - {self.quiz}"
