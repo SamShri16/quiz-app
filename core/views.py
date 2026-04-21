@@ -1,65 +1,102 @@
-from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
-from .models import Attempt, Answer
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Quiz, Question, Option, Attempt, Answer
+from django.contrib.auth.decorators import login_required
 
 
 def home(request):
-    categories = []
-    return render(request, 'core/home.html', {'categories': categories})
+    quizzes = Quiz.objects.all()
+    return render(request, 'core/home.html', {'quizzes': quizzes})
 
 
-def register(request):
+@login_required
+def start_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+
+    request.session['quiz_id'] = quiz.id
+    request.session['question_index'] = 0
+    request.session['score'] = 0
+    request.session['answers'] = {}
+
+    return redirect('quiz_question')
+
+
+@login_required
+def quiz_question(request):
+    quiz_id = request.session.get('quiz_id')
+    question_index = request.session.get('question_index', 0)
+
+    quiz = get_object_or_404(Quiz, pk=quiz_id)
+    questions = list(quiz.question_set.all())
+
+    if question_index >= len(questions):
+        return redirect('quiz_result')
+
+    question = questions[question_index]
+
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Account created successfully!')
-            return redirect('login')
-    else:
-        form = UserCreationForm()
+        selected_option_id = request.POST.get('option')
+        option = Option.objects.get(pk=selected_option_id)
 
-    return render(request, 'core/register.html', {'form': form})
+        answers = request.session.get('answers', {})
+        answers[str(question.id)] = selected_option_id
+        request.session['answers'] = answers
+
+        if option.is_correct:
+            request.session['score'] += 1
+
+        request.session['question_index'] += 1
+        return redirect('quiz_question')
+
+    return render(request, 'core/quiz_question.html', {
+        'question': question
+    })
+
 
 @login_required
 def quiz_result(request):
     score = request.session.get('score', 0)
     quiz_id = request.session.get('quiz_id')
+
     quiz = get_object_or_404(Quiz, pk=quiz_id)
-    total_question = quiz.question_set_count()
+    total_questions = quiz.question_set.count()
     answers = request.session.get('answers', {})
 
-    # Save attempt
+    # Save Attempt
     attempt = Attempt.objects.create(
         user=request.user,
         quiz=quiz,
         score=score,
-        total=total_question
+        total=total_questions,
     )
 
-    # Save each answer 
+    # Save Answers
     for qid, oid in answers.items():
-        questions = Question.objects.get(pk=qid)
-        option = Opton.objects.get(pk=oid)
+        question = Question.objects.get(pk=qid)
+        option = Option.objects.get(pk=oid)
+
         Answer.objects.create(
             attempt=attempt,
             question=question,
             selected_option=option
         )
 
-    # Clear session 
-    for key in['score','quiz_id','question_index','asnwers']:
+    # Clear session
+    for key in ['score', 'quiz_id', 'question_index', 'answers']:
         request.session.pop(key, None)
 
-    return.render(request, 'core/quiz_result.html' , {
+    return render(request, 'core/quiz_result.html', {
         'score': score,
-        'total_questions' : total_question
+        'total_questions': total_questions,
         'quiz': quiz
-
     })
 
 
 @login_required
-def my_ateempts(request):
+def my_attempts(request):
     attempts = Attempt.objects.filter(user=request.user).order_by('-completed_at')
-    return render(request, 'core/my_attempts.html', {'attempts': attempts})
+    return render(request, 'core/my_attempts.html', {
+        'attempts': attempts
+    })
+
