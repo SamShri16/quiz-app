@@ -13,4 +13,10 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='core/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('register/', core_views.register, name='register'),
+    
+    path('my-attempts/', views.my_attempts, name='my_attempts'),
+    path('result/', views.quiz_result, name='quiz_result'),
+
+
+
 ]

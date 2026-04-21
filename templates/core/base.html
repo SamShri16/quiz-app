@@ -42,12 +42,24 @@
 
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <span class="nav-link">Hello, {{ user.username }}</span>
+                        <a class="nav-link" href="{% url 'my_attempts' %}">My Attempts</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        <span class="nav-link">Hello, {{ user.username }}</span>
                     </li>
+                          
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link nav-link" style="padding:0;">
+                                Logout
+                            </button>
+                        </form>
+                    </li>
+                    
+                    
+
 
                 {% else %}
                     <li class="nav-item">
