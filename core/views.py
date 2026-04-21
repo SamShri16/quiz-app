@@ -3,6 +3,21 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Quiz, Question, Option, Attempt, Answer
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render, redirect
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'core/register.html', {'form': form})
+
+
 
 
 def home(request):
