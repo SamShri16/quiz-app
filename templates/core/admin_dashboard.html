@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+
+<h2>Admin Dashboard</h2>
+
+<p>Total Users: {{ total_users }}</p>
+<p>Total Quizzes: {{ total_quizzes }}</p>
+<p>Total Attempts: {{ total_attempts }}</p>
+
+<h3>Top Quizzes</h3>
+
+<ul>
+    {% for quiz in top_quizzes %}
+        <li>{{ quiz.title }} - {{ quiz.attempts }} attempts</li>
+    {% empty %}
+        <li>No data</li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>

@@ -1,29 +1,15 @@
-{% extends 'core/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
+<h2>All Quizzes</h2>
 
-<div class="jumbotron text-center bg-light shadow-sm">
-    <h1 class="display-4">Welcome to the Quiz App</h1>
-    <p class="lead">Test your knowledge by choosing a quiz category.</p>
-</div>
-
-<div class="row">
-    {% for category in categories %}
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
-                    <h5 class="card-title">{{ category.name }}</h5>
-                    <a href="{% url 'category_quizzes' category.id %}" class="btn btn-primary">
-                        View Quizzes
-                    </a>
-                </div>
-            </div>
-        </div>
+<ul class="list-group">
+    {% for quiz in quizzes %}
+        <li class="list-group-item">
+            {{ quiz.title }}
+        </li>
     {% empty %}
-        <div class="col-12 text-center">
-            <p>No categories available.</p>
-        </div>
+        <li class="list-group-item">No quizzes available.</li>
     {% endfor %}
-</div>
-
+</ul>
 {% endblock %}

@@ -1,27 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Attempts</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <h1>My Quiz Attempts</h1>
+{% block content %}
+<h2>My Attempts</h2>
 
-    {% if attempts %}
-        <ul>
-            {% for attempt in attempts %}
-                <li>
-                    Score: {{ attempt.score }} |
-                    Completed At: {{ attempt.completed_at }}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No attempts yet.</p>
-    {% endif %}
+{% if attempts %}
+<table class="table">
+    <tr>
+        <th>Quiz</th>
+        <th>Score</th>
+        <th>Date</th>
+    </tr>
 
-    <br>
-    <a href="/">Go Home</a>
+    {% for attempt in attempts %}
+    <tr>
+        <td>{{ attempt.quiz.title }}</td>
+        <td>{{ attempt.score }}</td>
+        <td>{{ attempt.created_at }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No attempts yet.</p>
+{% endif %}
 
-</body>
-</html>
+{% endblock %}

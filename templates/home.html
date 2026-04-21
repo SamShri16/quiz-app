@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz Home</title>
+</head>
+<body>
+
+<h1>Available Quizzes</h1>
+
+<ul>
+    {% for quiz in quizzes %}
+        <li>{{ quiz.title }}</li>
+    {% empty %}
+        <li>No quizzes available</li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>
