@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="mb-4">Admin Dashboard</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card p-3 bg-light">
+                <h5>Total Users</h5>
+                <h3>{{ total_users }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3 bg-light">
+                <h5>Total Quizzes</h5>
+                <h3>{{ total_quizzes }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-3 bg-light">
+                <h5>Total Attempts</h5>
+                <h3>{{ total_attempts }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <h4>Top 5 Attempted Quizzes</h4>
+
+    <ul class="list-group">
+        {% for quiz in top_quizzes %}
+            <li class="list-group-item d-flex justify-content-between">
+                {{ quiz.title }}
+                <span class="badge bg-primary">
+                    {{ quiz.attempts_count }} attempts
+                </span>
+            </li>
+        {% empty %}
+            <li class="list-group-item">No quiz attempts yet.</li>
+        {% endfor %}
+    </ul>
+
+</div>
+{% endblock %}
