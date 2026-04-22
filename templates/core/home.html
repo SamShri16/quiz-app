@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>All Quizzes</h2>
 
-<ul class="list-group">
+<h1>Available Quizzes</h1>
+
+<ul>
     {% for quiz in quizzes %}
-        <li class="list-group-item">
-            {{ quiz.title }}
-        </li>
+        <li>{{ quiz.title }}</li>
     {% empty %}
-        <li class="list-group-item">No quizzes available.</li>
+        <li>No quizzes available</li>
     {% endfor %}
 </ul>
+
 {% endblock %}
