@@ -1,22 +1,10 @@
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #0b0f19;   /* dark background */
-    color: #ffffff;              /* default text white */
-}
-
-/* Fix jumbotron text */
-.jumbotron {
-    color: #000 !important;
-}
-
-body {
     padding-top: 70px;
     background-color: #f8f9fa;
 }
 
 .card {
     box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    border-radius: 10px;
 }
 
 .navbar-brand {
@@ -24,11 +12,6 @@ body {
     font-size: 1.3rem;
 }
 
-.btn-primary {
-    background-color: #007bff;
-    border: none;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
+.btn {
+    border-radius: 8px;
 }

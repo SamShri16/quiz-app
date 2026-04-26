@@ -2,33 +2,32 @@
 
 {% block content %}
 
-<h2 class="mb-4">{{ quiz.title }}</h2>
+<h2>{{ quiz.title }}</h2>
 
-<!-- TIMER -->
+<!-- Timer -->
 <div class="alert alert-warning text-center" id="timer" style="font-size: 20px;"></div>
 
 <form method="post" id="quiz-form">
     {% csrf_token %}
 
     {% for question in questions %}
-    <div class="card mb-3 p-3">
-        <h5>{{ question.text }}</h5>
+        <div class="card p-3 mb-3">
+            <h5>{{ question.text }}</h5>
 
-        {% for option in question.options.all %}
-        <div>
-            <input type="radio" name="q{{ question.id }}" value="{{ option.id }}">
-            {{ option.text }}
+            {% for option in question.options.all %}
+                <div>
+                    <input type="radio" name="question_{{ question.id }}" value="{{ option.id }}">
+                    {{ option.text }}
+                </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
     {% endfor %}
 
-    <button type="submit" class="btn btn-primary">Submit Quiz</button>
+    <button type="submit" class="btn btn-success">Submit Quiz</button>
 </form>
 
-<!-- TIMER SCRIPT -->
 <script>
-    let totalTime = 120;  // adjust as needed
+    let totalTime = 60;
     let timerElement = document.getElementById("timer");
 
     function updateTimer() {
@@ -39,7 +38,7 @@
 
         if (totalTime <= 0) {
             clearInterval(timerInterval);
-            alert("Time's up! Submitting...");
+            alert("Time's up! Submitting your quiz...");
             document.getElementById("quiz-form").submit();
         }
 
