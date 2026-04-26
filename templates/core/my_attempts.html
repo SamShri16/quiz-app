@@ -1,24 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>My Attempts</h2>
+
+<h2 class="mb-4">My Attempts</h2>
 
 {% if attempts %}
-<table class="table">
-    <tr>
-        <th>Quiz</th>
-        <th>Score</th>
-        <th>Date</th>
-    </tr>
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>Quiz</th>
+            <th>Score</th>
+            <th>Date</th>
+        </tr>
+    </thead>
 
-    {% for attempt in attempts %}
-    <tr>
-        <td>{{ attempt.quiz.title }}</td>
-        <td>{{ attempt.score }}</td>
-        <td>{{ attempt.created_at }}</td>
-    </tr>
-    {% endfor %}
+    <tbody>
+        {% for attempt in attempts %}
+        <tr>
+            <td>{{ attempt.quiz.title }}</td>
+            <td>{{ attempt.score }}</td>
+            <td>{{ attempt.date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
+
 {% else %}
 <p>No attempts yet.</p>
 {% endif %}

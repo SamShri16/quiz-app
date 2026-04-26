@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">{{ quiz.title }}</h2>
+
+<!-- TIMER -->
+<div class="alert alert-warning text-center" id="timer" style="font-size: 20px;"></div>
+
+<form method="post" id="quiz-form">
+    {% csrf_token %}
+
+    {% for question in questions %}
+    <div class="card mb-3 p-3">
+        <h5>{{ question.text }}</h5>
+
+        {% for option in question.options.all %}
+        <div>
+            <input type="radio" name="q{{ question.id }}" value="{{ option.id }}">
+            {{ option.text }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">Submit Quiz</button>
+</form>
+
+<!-- TIMER SCRIPT -->
+<script>
+    let totalTime = 120;  // adjust as needed
+    let timerElement = document.getElementById("timer");
+
+    function updateTimer() {
+        let minutes = Math.floor(totalTime / 60);
+        let seconds = totalTime % 60;
+
+        timerElement.innerText = `Time Left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+        if (totalTime <= 0) {
+            clearInterval(timerInterval);
+            alert("Time's up! Submitting...");
+            document.getElementById("quiz-form").submit();
+        }
+
+        totalTime--;
+    }
+
+    let timerInterval = setInterval(updateTimer, 1000);
+</script>
+
+{% endblock %}
