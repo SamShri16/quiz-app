@@ -4,7 +4,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 import csv
 from io import TextIOWrapper
+from .models import Category
 
+def home(request):
+    categories = Category.objects.all()
+    return render(request, 'core/home.html', {'categories': categories})
 
 @staff_member_required
 def admin_manage_users(request):
