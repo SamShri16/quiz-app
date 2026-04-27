@@ -1,141 +1,105 @@
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-
-from .models import Category, Quiz, Question, Option, Attempt, Answer
+import csv
+from io import TextIOWrapper
 
 
-def home(request):
-    categories = Category.objects.all()
-    return render(request, 'core/home.html', {'categories': categories})
+@staff_member_required
+def admin_manage_users(request):
+    users = User.objects.all().order_by('-date_joined')
+    return render(request, 'core/admin_users.html', {'users': users})
 
 
-def register(request):
+@staff_member_required
+def admin_add_user(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
-        confirm = request.POST['confirm_password']
-
-        if password != confirm:
-            messages.error(request, "Passwords do not match")
-            return redirect('register')
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
 
         if User.objects.filter(username=username).exists():
-            messages.error(request, "Username exists")
-            return redirect('register')
-
-        User.objects.create(
-            username=username,
-            email=email,
-            password=make_password(password)
-        )
-
-        messages.success(request, "Account created")
-        return redirect('login')
-
-    return render(request, 'core/register.html')
-
-
-def login_view(request):
-    if request.method == 'POST':
-        user = authenticate(
-            request,
-            username=request.POST['username'],
-            password=request.POST['password']
-        )
-
-        if user:
-            login(request, user)
-            return redirect('home')
+            messages.error(request, "Username already exists.")
         else:
-            messages.error(request, "Invalid login")
-            return redirect('login')
+            User.objects.create_user(username=username, email=email, password=password)
+            messages.success(request, "User created successfully.")
 
-    return render(request, 'core/login.html')
+        return redirect('admin_manage_users')
 
-
-@login_required
-def logout_view(request):
-    logout(request)
-    return redirect('login')
+    return render(request, 'core/admin_add_user.html')
 
 
-def category_quizzes(request, category_id):
-    quizzes = Quiz.objects.filter(category_id=category_id)
-    return render(request, 'core/quizzes_by_category.html', {'quizzes': quizzes})
+@staff_member_required
+def delete_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    user.delete()
+    messages.success(request, "User deleted successfully.")
+    return redirect('admin_manage_users')
 
 
-@login_required
-def start_quiz(request, quiz_id):
-    request.session['quiz_id'] = quiz_id
-    request.session['question_index'] = 0
-    request.session['score'] = 0
-    request.session['answers'] = {}
-    return redirect('attempt_quiz')
+@staff_member_required
+def upload_users_csv(request):
+    if request.method == 'POST':
+        if 'csv_file' not in request.FILES:
+            messages.error(request, "No file uploaded.")
+            return redirect('upload_users_csv')
+
+        csv_file = request.FILES['csv_file']
+
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, "Only CSV files are allowed.")
+            return redirect('upload_users_csv')
+
+        try:
+            file_data = TextIOWrapper(csv_file.file, encoding='utf-8')
+            reader = csv.DictReader(file_data)
+
+            created_count = 0
+
+            for row in reader:
+                username = row.get('username')
+                email = row.get('email')
+                password = row.get('password')
+
+                if username and not User.objects.filter(username=username).exists():
+                    User.objects.create_user(username=username, email=email, password=password)
+                    created_count += 1
+
+            messages.success(request, f"{created_count} users uploaded successfully.")
+
+        except Exception as e:
+            messages.error(request, f"Error processing file: {str(e)}")
+
+        return redirect('admin_manage_users')
+
+    return render(request, 'core/admin_upload_users.html')
 
 
-@login_required
-def attempt_quiz(request):
-    quiz_id = request.session.get('quiz_id')
-    index = request.session.get('question_index', 0)
-
-    quiz = get_object_or_404(Quiz, pk=quiz_id)
-    questions = list(quiz.question_set.all())
-
-    if index >= len(questions):
-        return redirect('quiz_result')
-
-    question = questions[index]
+@staff_member_required
+def edit_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
 
     if request.method == 'POST':
-        option_id = request.POST.get('option')
+        user.username = request.POST.get('username')
+        user.email = request.POST.get('email')
 
-        if option_id:
-            option = Option.objects.get(id=option_id)
+        password = request.POST.get('password')
+        if password:
+            user.set_password(password)
 
-            if option.is_correct:
-                request.session['score'] += 1
+        user.save()
+        messages.success(request, "User updated successfully.")
+        return redirect('admin_manage_users')
 
-        request.session['question_index'] += 1
-        return redirect('attempt_quiz')
+    return render(request, 'core/admin_edit_user.html', {'user': user})
 
-    return render(request, 'core/quiz_attempt.html', {
-        'question': question,
-        'options': question.options.all(),
-        'question_number': index + 1,
-        'total_questions': len(questions)
+
+# ✅ ADMIN DASHBOARD
+@staff_member_required
+def admin_dashboard(request):
+    total_users = User.objects.count()
+
+    return render(request, 'core/admin_dashboard.html', {
+        'total_users': total_users
     })
-
-
-@login_required
-def quiz_result(request):
-    score = request.session.get('score', 0)
-    quiz_id = request.session.get('quiz_id')
-
-    quiz = get_object_or_404(Quiz, pk=quiz_id)
-    total = quiz.question_set.count()
-
-    Attempt.objects.create(
-        user=request.user,
-        quiz=quiz,
-        score=score,
-        total=total
-    )
-
-    request.session.flush()
-
-    return render(request, 'core/quiz_result.html', {
-        'score': score,
-        'total_questions': total,
-        'quiz': quiz
-    })
-
-
-@login_required
-def my_attempts(request):
-    attempts = Attempt.objects.filter(user=request.user)
-    return render(request, 'core/my_attempts.html', {'attempts': attempts})

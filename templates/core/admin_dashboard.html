@@ -1,25 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Dashboard</title>
-</head>
-<body>
+={% extends 'core/base.html' %}
 
-<h2>Admin Dashboard</h2>
+{% block content %}
 
-<p>Total Users: {{ total_users }}</p>
-<p>Total Quizzes: {{ total_quizzes }}</p>
-<p>Total Attempts: {{ total_attempts }}</p>
+<h2 class="mb-4">Admin Dashboard</h2>
 
-<h3>Top Quizzes</h3>
+<div class="row">
 
-<ul>
-    {% for quiz in top_quizzes %}
-        <li>{{ quiz.title }} - {{ quiz.attempts }} attempts</li>
-    {% empty %}
-        <li>No data</li>
-    {% endfor %}
-</ul>
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title">Manage Users</h5>
+                <p>Total Users: {{ total_users }}</p>
+                <a href="{% url 'admin_manage_users' %}" class="btn btn-light">Go</a>
+            </div>
+        </div>
+    </div>
 
-</body>
-</html>
+</div>
+
+{% endblock %}
