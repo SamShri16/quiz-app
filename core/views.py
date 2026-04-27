@@ -90,3 +90,88 @@ def upload_users_csv(request):
         return redirect('admin_manage_users')
 
     return render(request, 'core/admin_upload_users.html')
+
+
+# ==============================
+# ADMIN USER MANAGEMENT (DAY 9)
+# ==============================
+
+@staff_member_required
+def admin_manage_users(request):
+    users = User.objects.all()
+    return render(request, 'core/admin_users.html', {'users': users})
+
+
+@staff_member_required
+def admin_add_user(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists.")
+        else:
+            User.objects.create_user(username=username, email=email, password=password)
+            messages.success(request, "User created successfully.")
+
+        return redirect('admin_manage_users')
+
+    return render(request, 'core/admin_add_user.html')
+
+
+@staff_member_required
+def delete_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    user.delete()
+    messages.success(request, "User deleted successfully.")
+    return redirect('admin_manage_users')
+
+
+@staff_member_required
+def upload_users_csv(request):
+    if request.method == 'POST':
+        if 'csv_file' not in request.FILES:
+            messages.error(request, "No file uploaded.")
+            return redirect('admin_manage_users')
+
+        csv_file = request.FILES['csv_file']
+        file_data = TextIOWrapper(csv_file.file, encoding='utf-8')
+        reader = csv.DictReader(file_data)
+
+        for row in reader:
+            username = row.get('username')
+            email = row.get('email')
+            password = row.get('password')
+
+            if username and not User.objects.filter(username=username).exists():
+                User.objects.create_user(username=username, email=email, password=password)
+
+        messages.success(request, "Users uploaded successfully.")
+        return redirect('admin_manage_users')
+
+    return render(request, 'core/admin_upload_users.html')
+
+
+@staff_member_required
+def edit_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == 'POST':
+        user.username = request.POST.get('username')
+        user.email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        if password:
+            user.set_password(password)
+
+        user.save()
+        messages.success(request, "User updated successfully.")
+        return redirect('admin_manage_users')
+
+    return render(request, 'core/admin_edit_user.html', {'user': user})
+
+
+
+
+
