@@ -6,6 +6,14 @@ from django.contrib.auth import update_session_auth_hash
 import csv
 from io import TextIOWrapper
 
+from .models import Quiz
+
+@staff_member_required
+def admin_manage_quizzes(request):
+    quizzes = Quiz.objects.all()
+    return render(request, 'core/admin_manage_quizzes.html', {'quizzes': quizzes})
+
+
 
 @staff_member_required
 def admin_manage_users(request):
