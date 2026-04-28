@@ -11,4 +11,7 @@ urlpatterns = [
     path('admin/users/edit/<int:user_id>/', views.edit_user, name='edit_user'),
     path('admin/users/delete/<int:user_id>/', views.delete_user, name='delete_user'),
     path('admin/users/upload_csv/', views.upload_users_csv, name='upload_users_csv'),
+
+    path('admin_manage_quizzes/', views.admin_manage_quizzes, name='admin_manage_quizzes'),
+
 ]

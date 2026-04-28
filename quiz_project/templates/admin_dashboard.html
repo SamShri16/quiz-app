@@ -1,13 +1,15 @@
-{% extends 'core/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
+
+<h3 class="mb-4">Admin Dashboard</h3>
 
 <div class="row">
 
     <div class="col-md-4">
         <div class="card bg-primary text-white mb-3">
             <div class="card-body">
-                <h5>Manage Users</h5>
+                <h5 class="card-title">Manage Users</h5>
                 <a href="{% url 'admin_manage_users' %}" class="btn btn-light">Go</a>
             </div>
         </div>
@@ -16,7 +18,7 @@
     <div class="col-md-4">
         <div class="card bg-success text-white mb-3">
             <div class="card-body">
-                <h5>Manage Quizzes</h5>
+                <h5 class="card-title">Manage Quizzes</h5>
                 <a href="{% url 'admin_manage_quizzes' %}" class="btn btn-light">Go</a>
             </div>
         </div>

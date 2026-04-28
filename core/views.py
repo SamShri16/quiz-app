@@ -172,6 +172,48 @@ def edit_user(request, user_id):
     return render(request, 'core/admin_edit_user.html', {'user': user})
 
 
+@staff_member_required
+def upload_users_csv(request):
+    if request.method == 'POST':
 
+        csv_file = request.FILES.get('csv_file')
+
+        # 🔴 Safety check
+        if not csv_file:
+            messages.error(request, "No file uploaded.")
+            return redirect('admin_manage_users')
+
+        # 🔴 File type check
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, "Please upload a CSV file.")
+            return redirect('admin_manage_users')
+
+        try:
+            file_data = TextIOWrapper(csv_file.file, encoding='utf-8')
+            reader = csv.DictReader(file_data)
+
+            count = 0
+
+            for row in reader:
+                username = row.get('username')
+                email = row.get('email')
+                password = row.get('password')
+
+                if username and not User.objects.filter(username=username).exists():
+                    User.objects.create_user(
+                        username=username,
+                        email=email,
+                        password=password
+                    )
+                    count += 1
+
+            messages.success(request, f"{count} users uploaded successfully.")
+
+        except Exception as e:
+            messages.error(request, f"Error processing file: {str(e)}")
+
+        return redirect('admin_manage_users')
+
+    return render(request, 'core/admin_upload_users.html')
 
 
