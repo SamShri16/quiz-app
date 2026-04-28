@@ -238,3 +238,39 @@ def admin_manage_quizzes(request):
     return render(request, 'core/admin_manage_quizzes.html', {'quizzes': quizzes})
 
 
+def register(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email    = request.POST.get('email')
+        password = request.POST.get('password')
+        confirm  = request.POST.get('confirm_password')
+
+        if not username or not email or not password:
+            messages.error(request, "All fields are required.")
+            return redirect('register')
+
+        if password != confirm:
+            messages.error(request, "Passwords do not match.")
+            return redirect('register')
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists.")
+            return redirect('register')
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already exists.")
+            return redirect('register')
+
+        User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        messages.success(request, "Account created successfully!")
+        return redirect('login')
+
+    return render(request, 'core/register.html')
+
+
+
